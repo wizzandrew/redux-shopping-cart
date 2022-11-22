@@ -1,5 +1,6 @@
-import {createSlice, createSelector, PayloadAction} from '@reduxjs/toolkit';
-import { RootState } from '../../app/store';
+import {createSlice, createAsyncThunk, createSelector, PayloadAction} from '@reduxjs/toolkit';
+import { checkout, CartItems } from '../../app/api';
+import { RootState, AppDispatch } from '../../app/store';
 
 type CheckoutState = "LOADING" | "READY" | "ERROR";
 export interface CartState {
@@ -40,9 +41,15 @@ const cartSlice = createSlice({
         }
     },
     extraReducers: function(builder) {
-        builder.addCase("cart/checkout/pending", (state, action) => {
+        builder.addCase(checkoutCart.pending, (state, action) => {
             state.checkoutState = 'LOADING';
-        })
+        });
+        builder.addCase(checkoutCart.fulfilled, (state, action) => {
+            state.checkoutState = 'READY';
+        });
+        builder.addCase(checkoutCart.rejected, (state, action) => {
+            state.checkoutState = 'ERROR';
+        });
     }
 });
 
@@ -60,6 +67,7 @@ export function getNumItems(state: RootState) {
 }
 
 //total number of items in the cart
+//is called ONLY when state.cart.ITEMS change but not anyhting in the state
 export const getMemoizedNumItems = createSelector(
     (state: RootState) => state.cart.items,
     (items) => {
@@ -72,7 +80,7 @@ export const getMemoizedNumItems = createSelector(
     }
 )
 
-// tottal price for the order
+// total price for the order
 export const getTotalPrice = createSelector(
     (state: RootState) => state.cart.items,
     (state: RootState) => state.products.products,
@@ -84,3 +92,18 @@ export const getTotalPrice = createSelector(
         return total.toFixed(2);
     }
 )
+
+// //checkout functionality
+// export function checkout() {
+//     return function checkoutThunk(dispatch: AppDispatch) {
+//         dispatch({ type: "cart/checkout/pending"});
+//         setTimeout(function() {
+//             dispatch({type: "cart/checkout/fulfilled"})
+//         }, 500)
+//     }
+// }
+
+export const checkoutCart = createAsyncThunk("cart/checkout", async (items: CartItems) => {
+    const response = await checkout(items);
+    return response;
+})

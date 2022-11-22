@@ -1,7 +1,7 @@
 import React from "react";
 import classNames from "classnames";
 import { useAppSelector, useAppDispatch } from "../../app/hooks";
-import { getTotalPrice, removeFromCart, updateQuantity } from './cartSlice';
+import { getTotalPrice, removeFromCart, updateQuantity, checkoutCart } from './cartSlice';
 import styles from "./Cart.module.css";
 
 export function Cart() {
@@ -19,7 +19,7 @@ export function Cart() {
   //setting checkout state of the cart to "LOADING"
   function onCheckout(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    dispatch({type: "cart/checkout/pending"})
+    dispatch(checkoutCart(items));
   }
 
   //classnames library enables css conditional styling
