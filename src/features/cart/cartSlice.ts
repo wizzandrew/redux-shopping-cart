@@ -11,11 +11,13 @@ export interface CartState {
     // } 
     items: {[productID: string]: number};
     checkoutState: CheckoutState;
+    errorMessage: string;
 }
 
 const initialState: CartState = {
     items: {},
-    checkoutState: "READY"
+    checkoutState: "READY",
+    errorMessage: ""
 }
 
 const cartSlice = createSlice({
@@ -41,14 +43,15 @@ const cartSlice = createSlice({
         }
     },
     extraReducers: function(builder) {
-        builder.addCase(checkoutCart.pending, (state, action) => {
+        builder.addCase(checkoutCart.pending, (state) => {
             state.checkoutState = 'LOADING';
         });
-        builder.addCase(checkoutCart.fulfilled, (state, action) => {
+        builder.addCase(checkoutCart.fulfilled, (state) => {
             state.checkoutState = 'READY';
         });
         builder.addCase(checkoutCart.rejected, (state, action) => {
             state.checkoutState = 'ERROR';
+            state.errorMessage = action.error.message || "";
         });
     }
 });
@@ -94,15 +97,6 @@ export const getTotalPrice = createSelector(
 )
 
 // //checkout functionality
-// export function checkout() {
-//     return function checkoutThunk(dispatch: AppDispatch) {
-//         dispatch({ type: "cart/checkout/pending"});
-//         setTimeout(function() {
-//             dispatch({type: "cart/checkout/fulfilled"})
-//         }, 500)
-//     }
-// }
-
 export const checkoutCart = createAsyncThunk("cart/checkout", async (items: CartItems) => {
     const response = await checkout(items);
     return response;
