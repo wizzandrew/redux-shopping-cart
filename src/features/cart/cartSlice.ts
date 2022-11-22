@@ -29,11 +29,16 @@ const cartSlice = createSlice({
         },
         removeFromCart(state, action: PayloadAction<string>) {
             delete state.items[action.payload];
+        },
+        // able to change quantity of products in cart view
+        updateQuantity(state, action: PayloadAction<{id: string, quantity: number}>) {
+            const { id, quantity } = action.payload;
+            state.items[id] = quantity;
         }
     }
 });
 
-export const { addToCart, removeFromCart } = cartSlice.actions;
+export const { addToCart, removeFromCart, updateQuantity } = cartSlice.actions;
 export default cartSlice.reducer;
 
 //total number of items in the cart
